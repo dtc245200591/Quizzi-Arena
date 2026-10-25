@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: quizzi_web
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_NAME=quizzi_db
+    depends_on:
+      - db
+    networks:
+      - quizzi-net
+
+  db:
+    image: mysql:8.0
+    container_name: quizzi_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: quizzi_db
+      MYSQL_ROOT_PASSWORD: strong_password_123
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - quizzi-net
+
+  nginx:
+    image: nginx:alpine
+    container_name: quizzi_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - web
+    networks:
+      - quizzi-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: quizzi_prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - quizzi-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: quizzi_grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - quizzi-net
+
+  loki:
+    image: grafana/loki:latest
+    container_name: quizzi_loki
+    restart: always
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - quizzi-net
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: quizzi_promtail
+    restart: always
+    volumes:
+      - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - quizzi-net
+
+networks:
+  quizzi-net:
+    driver: bridge
+
+volumes:
+  mysql_data:

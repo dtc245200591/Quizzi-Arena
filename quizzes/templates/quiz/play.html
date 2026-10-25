@@ -1,0 +1,30 @@
+{% extends 'quiz/base.html' %}
+{% block title %}Đang chơi · {{ quiz.title }}{% endblock %}
+{% block content %}
+<div class="play-experience">
+  <div class="play-ambience" aria-hidden="true">
+    <span class="ambience-orb orb-one"></span><span class="ambience-orb orb-two"></span>
+    <span class="ambience-leaf leaf-one">🍃</span><span class="ambience-leaf leaf-two">✦</span><span class="ambience-leaf leaf-three">🌱</span>
+  </div>
+  <div class="play-top">
+    <a class="back-link" href="{% url 'quizzes:detail' quiz.id %}"><span aria-hidden="true">←</span> Thoát lượt chơi</a>
+    <span class="tag play-title-tag"><span aria-hidden="true">{{ quiz.topic.icon|default:'✨' }}</span> {{ quiz.title }}</span>
+  </div>
+  <div class="play-progress-wrap">
+    <div class="play-progress-label"><span>🌿 HÀNH TRÌNH KHÁM PHÁ</span><strong>{{ progress }}%</strong></div>
+    <div class="progress-track" role="progressbar" aria-label="Tiến độ câu hỏi" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"><span style="width:{{ progress }}%"></span></div>
+  </div>
+  <div class="play-meta">
+    <div class="question-step"><span class="step-icon">🧩</span><span><b>CÂU {{ index|add:1 }} / {{ total }}</b><small>Mỗi câu là một khám phá mới!</small></span></div>
+    <span class="timer" id="timer" data-seconds="{{ remaining }}" aria-live="polite"><span class="timer-icon" aria-hidden="true">⏱</span><b id="timer-value">{{ remaining }}</b><span>giây</span></span>
+  </div>
+  <section class="question-panel">
+    <div class="question-illustration" aria-hidden="true"><span>{{ quiz.topic.icon|default:'🌱' }}</span><i>✦</i><b>✧</b></div>
+    <div class="question-heading"><span class="question-number">THỬ THÁCH {{ index|add:1 }}</span><small>Chọn đáp án đúng nhất nhé!</small></div>
+    <h1>{{ question.text }}</h1>
+    <form method="post" id="answerForm">{% csrf_token %}<input type="hidden" name="question_id" value="{{ question.id }}"><div class="answer-grid">{% for choice in question.choices.all %}<button class="answer-option option-{{ forloop.counter }}" type="submit" name="choice" value="{{ choice.id }}"><span class="option-letter">{% cycle 'A' 'B' 'C' 'D' %}</span><span>{{ choice.text }}</span><span class="option-spark" aria-hidden="true">✦</span></button>{% endfor %}</div><input type="hidden" name="timed_out" value="1"></form>
+  </section>
+  <div class="play-hint"><span class="hint-icon" aria-hidden="true">✨</span><span><strong>{{ question.points }} điểm</strong><small>khi trả lời đúng</small></span><span class="hint-cheer">Cố lên, bạn làm được! <b>🌟</b></span></div>
+</div>
+{% endblock %}
+{% block scripts %}<script>(()=>{const timer=document.getElementById('timer'),value=document.getElementById('timer-value'),form=document.getElementById('answerForm');let n=Number(timer.dataset.seconds);function tick(){value.textContent=n;if(n<=5)timer.classList.add('urgent');if(n<=0){form.querySelectorAll('button').forEach(x=>x.disabled=true);form.requestSubmit();return}n--;setTimeout(tick,1000)}tick()})();</script>{% endblock %}
