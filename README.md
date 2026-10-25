@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Quizzi-Arena - Hệ thống Quiz / Thi trắc nghiệm
 - Môn: Triển khai và Quản trị Hệ thống Phần mềm (Đề 35)[cite: 3]
 - Stack: Django, Docker, Docker Compose, Nginx, Prometheus, Grafana, Loki.
@@ -6,3 +7,6 @@
 1. Clone repository về máy.
 2. Cấu hình file `.env` dựa trên `.env.example`.
 3. Chạy lệnh: `docker-compose up --build -d`
+=======
+# Quizzi-Arena
+>>>>>>> 492ede723977c8e133a41e61ea06a519f413ec08
